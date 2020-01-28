@@ -1,0 +1,16 @@
+{
+  "name": "streaks",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "process": "node process.js",
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "utm": "^1.1.1"
+  }
+}
