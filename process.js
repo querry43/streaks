@@ -1,43 +1,25 @@
 const fs = require('fs')
-const utm = require('utm')
-const {isValidLat, isValidLong, filterVehicles} = require('./lib')
+const {filterFilesByLocation, groupByVehicle} = require('./lib')
 
-const processFiles = (center, range, files) => {
-  const dataFiles = []
+const rawDataDir = './raw-data'
+const filteredDataDir = './filtered-data'
 
-  files.forEach(file => {
-    console.log(`Parsing ${file}`)
-    const vehicles = JSON.parse(fs.readFileSync(`data/${file}`))['acList']
-
-    const filteredVehicles = filterVehicles(
-      pdx,
-      range,
-      vehicles
-    )
-
-    const data = {
-      center: pdx,
-      range: range,
-      vehicles: filteredVehicles
-    }
-
-    const outputFile = `public/data/${file}`
-    fs.writeFileSync(outputFile, JSON.stringify(data))
-    dataFiles.push(outputFile)
-  })
-
-  fs.writeFileSync('public/data.json', JSON.stringify(dataFiles))
-}
-
-const dataFiles = fs.readdirSync('./data').filter(f => f.match(/\.json$/))
-
-const range = 200000
+const dataFiles = fs.readdirSync(rawDataDir)
+  .filter(f => f.match(/\.json$/))
+  .map(f => `${rawDataDir}/${f}`)
 
 const pdx = {
   Lat: 45.5876219,
   Long: -122.5903169,
 }
 
-Object.assign(pdx, utm.fromLatLon(pdx.Lat, pdx.Long))
+const range = 200000 // meters
 
-processFiles(pdx, range, dataFiles)
+const filteredData = filterFilesByLocation(
+  pdx,
+  range,
+  filteredDataDir,
+  dataFiles
+)
+
+groupByVehicle(filteredData)

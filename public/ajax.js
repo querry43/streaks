@@ -2,17 +2,17 @@ let dataFileList
 let dataFileIndex
 let data
 let fetchingDataFile = false
+let dictionary
 
-const fetchDataFileList = () => {
-  console.log('Fetching data.json')
+const dataDir = 'filtered-data'
+
+const fetch = (file, callback) => {
+  console.log(`Fetching ${file}`)
   const xhr = new XMLHttpRequest()
-  xhr.open('GET', 'data.json')
+  xhr.open('GET', file)
   xhr.onload = () => {
     if (xhr.status === 200) {
-      dataFileList = JSON.parse(xhr.response)
-      dataFileIndex = 0
-      console.log(`Found ${dataFileList.length} data files`)
-      fetchNextDataFile()
+      callback(xhr)
     } else {
       alert('Request failed.  Returned status of ' + xhr.status)
     }
@@ -20,19 +20,40 @@ const fetchDataFileList = () => {
   xhr.send()
 }
 
+const fetchDataFileList = () => {
+  fetch(`${dataDir}/index.json`, xhr => {
+    dataFileList = JSON.parse(xhr.response)
+    dataFileIndex = 0
+    console.log(`Found ${dataFileList.length} data files`)
+    fetchDictionary()
+  })
+}
+
+const fetchDictionary = () => {
+  fetch(`${dataDir}/dictionary.json`, xhr => {
+    dictionary = JSON.parse(xhr.response)
+    console.log(`Found ${Object.keys(dictionary).length} vehicles`)
+    fetchNextDataFile()
+  })
+}
+
 const fetchNextDataFile = () => {
-  if (fetchingDataFile || dataFileIndex == undefined || dataFileIndex > dataFileList.length) {
+  if (fetchingDataFile || dataFileIndex == undefined) {
     return
+  }
+
+  if (dataFileIndex >= dataFileList.length) {
+    dataFileIndex = 0
   }
 
   fetchingDataFile = true
 
-  const nextFile = `data/${dataFileList[dataFileIndex]}`
+  const nextFile = `${dataDir}/${dataFileList[dataFileIndex]}`
 
   console.log(`Fetching file ${dataFileIndex} ${nextFile}`)
 
   const xhr = new XMLHttpRequest()
-  xhr.open('GET', `data/${dataFileList[dataFileIndex]}`)
+  xhr.open('GET', `${dataDir}/${dataFileList[dataFileIndex]}`)
   xhr.onload = () => {
     if (xhr.status === 200) {
       data = JSON.parse(xhr.response)

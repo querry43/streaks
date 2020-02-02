@@ -2,41 +2,60 @@ fetchDataFileList()
 
 const height = 800
 const width = 800
-const fps = 5
+const fps = 15
+const fade = 30
+
+const vehicleColors = {}
+const vehicleLastLocations = {}
+
+const wtcStrokes = icao => dictionary[icao].WTC * 5
+
+const vehicleColor = icao => {
+  if (!vehicleColors[icao]) {
+    vehicleColors[icao] = color(random(255), random(255), random(255))
+  }
+
+  return vehicleColors[icao]
+}
 
 function setup() {
   createCanvas(width, height)
   frameRate(fps)
-}
-
-const vehicleColors = {}
-
-function draw() {
   background(51)
 
-  if (data != undefined) {
-    const minEasting = data.center.easting - data.range
-    const maxEasting = data.center.easting + data.range
-    const minNorthing = data.center.northing - data.range
-    const maxNorthing = data.center.northing + data.range
+  // a few interesting blend modes
+  blendMode(BLEND)
+  //blendMode(LIGHTEST)
+  //blendMode(SOFT_LIGHT)
+}
 
-    console.log(`Vehicles: ${data.vehicles.length}`)
-
-    strokeWeight(10)
-
-    data.vehicles.forEach(v => {
-      if (!vehicleColors[v.Icao]) {
-        vehicleColors[v.Icao] = color(random(255), random(255), random(255))
-      }
-
-      stroke(vehicleColors[v.Icao])
-
-      point(
-        map(v.utm.easting, minEasting, maxEasting, 0, width),
-        map(v.utm.northing, maxNorthing, minNorthing, 0, height) // inverted
-      )
-    })
-
-    fetchNextDataFile()
+function draw() {
+  if (data === undefined) {
+    return
   }
+
+  background(51, 51, 51, fade)
+
+  data.vehicles.forEach(v => {
+    const pos = {
+      x: map(v.Position.easting, data.boundingBox.minEasting, data.boundingBox.maxEasting, 0, width),
+      y: map(v.Position.northing, data.boundingBox.maxNorthing, data.boundingBox.minNorthing, 0, height) // inverted
+    }
+
+    if (vehicleLastLocations[v.Icao]) {
+      stroke(vehicleColor(v.Icao))
+      strokeWeight(wtcStrokes(v.Icao))
+
+      line(
+        vehicleLastLocations[v.Icao].x,
+        vehicleLastLocations[v.Icao].y,
+        pos.x,
+        pos.y
+      )
+    }
+
+    vehicleLastLocations[v.Icao] = pos
+  })
+
+  fetchNextDataFile()
 }
