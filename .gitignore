@@ -1,5 +1,6 @@
 node_modules
 *.swp
 *.swa
-raw-data
+by-vehicle-data
 filtered-data
+raw-data

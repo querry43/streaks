@@ -3,6 +3,7 @@ const {filterFilesByLocation, groupByVehicle} = require('./lib')
 
 const rawDataDir = './raw-data'
 const filteredDataDir = './filtered-data'
+const byVehicleDataDir = './by-vehicle-data'
 
 const dataFiles = fs.readdirSync(rawDataDir)
   .filter(f => f.match(/\.json$/))
@@ -22,4 +23,10 @@ const filteredData = filterFilesByLocation(
   dataFiles
 )
 
-groupByVehicle(filteredData)
+// testing
+// const filteredData = {
+//   indexFile: 'filtered-data/index.json',
+//   dictionaryFile: 'filtered-data/dictionary.json'
+// }
+
+groupByVehicle(filteredData, byVehicleDataDir)

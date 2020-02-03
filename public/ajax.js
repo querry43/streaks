@@ -4,7 +4,8 @@ let data
 let fetchingDataFile = false
 let dictionary
 
-const dataDir = 'filtered-data'
+//const dataDir = 'filtered-data'
+const dataDir = 'by-vehicle-data'
 
 const fetch = (file, callback) => {
   console.log(`Fetching ${file}`)
